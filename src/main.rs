@@ -62,18 +62,35 @@ impl WindowHandler for MyWindowHandler {
     fn on_draw(&mut self, helper: &mut WindowHelper<()>, graphics: &mut Graphics2D) {
         // Handle movement based on pressed keys
         if self.keys_pressed.contains(&VirtualKeyCode::Left) {
-            self.pov -= 5.0_f32.to_radians();
+            self.pov -= 3.0_f32.to_radians();
         }
         if self.keys_pressed.contains(&VirtualKeyCode::Right) {
-            self.pov += 5.0_f32.to_radians();
+            self.pov += 3.0_f32.to_radians();
         }
         if self.keys_pressed.contains(&VirtualKeyCode::Up) {
-            self.player_x += self.pov.cos() * 0.1;
-            self.player_y += self.pov.sin() * 0.1;
+            // Predict the next position
+            let next_x = self.player_x + self.pov.cos() * 0.1;
+            let next_y = self.player_y + self.pov.sin() * 0.1;
+
+            // Check if the next position is inside a wall
+            if self.world[next_y.floor() as usize][next_x.floor() as usize] != 1 {
+                self.player_x = next_x;
+                self.player_y = next_y;
+
+            }
+
         }
         if self.keys_pressed.contains(&VirtualKeyCode::Down) {
-            self.player_x -= self.pov.cos() * 0.1;
-            self.player_y -= self.pov.sin() * 0.1;
+            // Predict the next position
+            let next_x = self.player_x - self.pov.cos() * 0.1;
+            let next_y = self.player_y - self.pov.sin() * 0.1;
+
+            // Check if the next position is inside a wall
+            if self.world[next_y.floor() as usize][next_x.floor() as usize] != 1 {
+                self.player_x = next_x;
+                self.player_y = next_y;
+
+            }
         }
 
         graphics.clear_screen(Color::from_rgb(0.8, 0.9, 1.0));
